@@ -395,6 +395,9 @@
 		{
 			$RealSheetIndex = false;
 			$Sheets = $this -> Sheets();
+                        
+                        $this->Index = $Index;
+                        
 			if (isset($Sheets[$Index]))
 			{
 				$SheetIndexes = array_keys($this -> Sheets);
