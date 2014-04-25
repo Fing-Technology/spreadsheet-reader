@@ -241,15 +241,27 @@
 					$this -> PrepareSharedStringCache();
 				}
 			}
-
-			$Sheets = $this -> Sheets();
-			
-			foreach ($this -> Sheets as $Index => $Name)
+                        $WorksheetPaths = array();
+			if ($Zip -> locateName('xl/_rels/workbook.xml.rels') !== false)
 			{
-				if ($Zip -> locateName('xl/worksheets/sheet'.$Index.'.xml') !== false)
+				$relsXML = new SimpleXMLElement($Zip -> getFromName('xl/_rels/workbook.xml.rels'));
+                                foreach ($relsXML -> Relationship as $relationship) {
+                                    $WorksheetPaths[(string) $relationship['Id']] = (string) $relationship['Target'];
+                                }
+			}
+
+                        $this -> Sheets = array();
+                        foreach ($this -> WorkbookXML -> sheets -> sheet as $Index => $Sheet)
+                        {
+                            $Attributes = $Sheet -> attributes('r', true);
+                            $this -> Sheets[$WorksheetPaths[(string)$Attributes['id']]] = (string) $Sheet['name'];
+                        }
+                        foreach ($this -> Sheets as $Index => $Name)
+			{
+				if ($Zip -> locateName('xl/'.$Index) !== false)
 				{
-					$Zip -> extractTo($this -> TempDir, 'xl/worksheets/sheet'.$Index.'.xml');
-					$this -> TempFiles[] = $this -> TempDir.'xl'.DIRECTORY_SEPARATOR.'worksheets'.DIRECTORY_SEPARATOR.'sheet'.$Index.'.xml';
+					$Zip -> extractTo($this -> TempDir, 'xl/'.$Index);
+					$this -> TempFiles[] = $this -> TempDir.'xl'.DIRECTORY_SEPARATOR.$Index;
 				}
 			}
 
@@ -362,25 +374,6 @@
 		 */
 		public function Sheets()
 		{
-			if ($this -> Sheets === false)
-			{
-				$this -> Sheets = array();
-				foreach ($this -> WorkbookXML -> sheets -> sheet as $Index => $Sheet)
-				{
-					$Attributes = $Sheet -> attributes('r', true);
-					foreach ($Attributes as $Name => $Value)
-					{
-						if ($Name == 'id')
-						{
-							$SheetID = (int)str_replace('rId', '', (string)$Value);
-							break;
-						}
-					}
-
-					$this -> Sheets[$SheetID] = (string)$Sheet['name'];
-				}
-				ksort($this -> Sheets);
-			}
 			return array_values($this -> Sheets);
 		}
 
@@ -396,7 +389,7 @@
 			$RealSheetIndex = false;
 			$Sheets = $this -> Sheets();
                         
-                        $this->Index = $Index;
+                        $this->Worksheet = null;
                         
 			if (isset($Sheets[$Index]))
 			{
@@ -404,7 +397,7 @@
 				$RealSheetIndex = $SheetIndexes[$Index];
 			}
 
-			$TempWorksheetPath = $this -> TempDir.'xl/worksheets/sheet'.$RealSheetIndex.'.xml';
+			$TempWorksheetPath = $this -> TempDir.'xl/'.$RealSheetIndex;
 
 			if ($RealSheetIndex !== false && is_readable($TempWorksheetPath))
 			{
