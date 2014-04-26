@@ -910,26 +910,22 @@
 		 */ 
 		public function rewind()
 		{
-			if ($this -> Index > 0 || !($this -> Worksheet instanceof XMLReader))
-			{
-				// If the worksheet was already iterated, XML file is reopened.
-				// Otherwise it should be at the beginning anyway
-				if ($this -> Worksheet instanceof XMLReader)
-				{
-					$this -> Worksheet -> close();
-				}
-				else
-				{
-					$this -> Worksheet = new XMLReader;
-				}
+                        if ($this -> Worksheet instanceof XMLReader)
+                        {
+                                $this -> Worksheet -> close();
+                        }
+                        else
+                        {
+                                $this -> Worksheet = new XMLReader;
+                        }
 
-				$this -> Worksheet -> open($this -> WorksheetPath);
-				$this -> Valid = true;
+                        $this -> Worksheet -> open($this -> WorksheetPath);
+                        $this -> Valid = true;
 
-				$this -> RowOpen = false;
-			}
+                        $this -> RowOpen = false;
 
 			$this -> Index = 0;
+                        $this -> next();
 		}
 
 		/**
@@ -940,11 +936,6 @@
 		 */
 		public function current()
 		{
-			if ($this -> Index == 0 && $this -> CurrentRow === false)
-			{
-				$this -> next();
-				$this -> Index--;
-			}
 			return $this -> CurrentRow;
 		}
 
@@ -1003,7 +994,10 @@
 					{
 						// End of row
 						case 'row':
-                                                        $this -> CurrentKey = $this->Worksheet->getAttribute('r');
+                                                        if ($this->Worksheet->getAttribute('r'))
+                                                        {
+                                                            $this -> CurrentKey = (int) $this->Worksheet->getAttribute('r');
+                                                        }
                                                     
 							if ($this -> Worksheet -> nodeType == XMLReader::END_ELEMENT)
 							{
