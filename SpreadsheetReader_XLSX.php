@@ -103,6 +103,8 @@
 		private $SSOpen = false;
 		private $SSForwarded = false;
 
+                private $CurrentKey;
+
 		private static $BuiltinFormats = array(
 			1 => '0',
 			2 => '0.00',
@@ -1001,6 +1003,8 @@
 					{
 						// End of row
 						case 'row':
+                                                        $this -> CurrentKey = $this->Worksheet->getAttribute('r');
+                                                    
 							if ($this -> Worksheet -> nodeType == XMLReader::END_ELEMENT)
 							{
 								$this -> RowOpen = false;
@@ -1086,7 +1090,7 @@
 		 */ 
 		public function key()
 		{
-			return $this -> Index;
+			return $this -> CurrentKey;
 		}
 
 		/** 
