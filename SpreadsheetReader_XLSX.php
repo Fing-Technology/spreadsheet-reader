@@ -1013,7 +1013,7 @@
 								continue;
 							}
 
-							$StyleId = (int)$this -> Worksheet -> getAttribute('s');
+							// $StyleId = (int)$this -> Worksheet -> getAttribute('s');
 
 							// Get the index of the cell
 							$Index = $this -> Worksheet -> getAttribute('r');
@@ -1054,10 +1054,10 @@
 							}
 
 							// Format value if necessary
-							if ($Value !== '' && $StyleId && isset($this -> Styles[$StyleId]))
-							{
-								$Value = $this -> FormatValue($Value, $StyleId);
-							}
+							//if ($Value !== '' && $StyleId && isset($this -> Styles[$StyleId]))
+							//{
+							//	$Value = $this -> FormatValue($Value, $StyleId);
+							//}
 
 							$this -> CurrentRow[$Index] = $Value;
 							break;
