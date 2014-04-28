@@ -20,7 +20,7 @@
 		 *	With large shared string caches there are huge performance gains, however a lot of memory could be used which
 		 *	can be a problem, especially on shared hosting.
 		 */
-		const SHARED_STRING_CACHE_LIMIT = 50000;
+		const SHARED_STRING_CACHE_LIMIT = 200000;
 
 		private $Options = array(
 			'TempDir' => '',
@@ -392,6 +392,9 @@
 			$Sheets = $this -> Sheets();
                         
                         $this->Worksheet = null;
+                        if ($this -> Worksheet) {
+                            $this -> Worksheet -> close();
+                        }
                         
 			if (isset($Sheets[$Index]))
 			{
@@ -910,6 +913,10 @@
 		 */ 
 		public function rewind()
 		{
+                        if ($this->Index == 0 && $this -> Worksheet instanceof XMLReader) {
+                            return;
+                        }
+
                         if ($this -> Worksheet instanceof XMLReader)
                         {
                                 $this -> Worksheet -> close();
@@ -924,7 +931,7 @@
 
                         $this -> RowOpen = false;
 
-			$this -> Index = 0;
+			$this -> Index = -1;
                         $this -> next();
 		}
 
